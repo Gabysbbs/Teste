@@ -114,7 +114,7 @@ ContentArea.Position = UDim2.new(0, 0, 0, 53)
 ContentArea.BackgroundTransparency = 1
 ContentArea.Parent = MainFrame
 
--- ══════════════════════════════════════════
+-- ══════════════════════════════════════���═══
 -- HELPER: TOGGLE
 -- ══════════════════════════════════════════
 local function createToggle(parent, labelText, yPos, toggleKey)
@@ -554,9 +554,9 @@ UIS.InputBegan:Connect(function(input, gp)
     end
 end)
 
--- ══════════════════════════════════════════════════════════════════
--- AIMBOT — extraído da versão funcional (.txt)
--- ══════════════════════════════════════════════════════════════════
+-- ════════════════════════════════════════════════════════════════
+-- AIMBOT — CAMERA-ONLY (Apenas câmera, sem movimento de corpo)
+-- ════════════════════════════════════════════════════════════════
 
 -- FOV Circle (sempre existe, só aparece com SHOWFOV)
 local fovCircle = nil
@@ -624,7 +624,7 @@ local function getClosestTargetInFOV()
     return target
 end
 
--- Loop do aimbot
+-- Loop do aimbot — APENAS CÂMERA
 RunService.RenderStepped:Connect(function()
     local cam = workspace.CurrentCamera
 
@@ -636,39 +636,26 @@ RunService.RenderStepped:Connect(function()
         fovCircle.Color    = getFovColor()
     end
 
-    -- AIMLOCK
+    -- AIMLOCK — APENAS CÂMERA, SEM MANIPULAÇÃO DO CORPO
     if state.toggles.AIMLOCK then
         local target = getClosestTargetInFOV()
         if target and target.Character then
             local char = target.Character
             local targetPart = char:FindFirstChild(state.firelockPart)
                 or char:FindFirstChild("HumanoidRootPart")
-            local myChar = LocalPlayer.Character
-            local myHRP  = myChar and myChar:FindFirstChild("HumanoidRootPart")
-            if targetPart and myHRP then
+            if targetPart then
+                -- ✅ APENAS ajusta a câmera para olhar para o alvo
                 local targetPos = targetPart.Position + Vector3.new(0, 1.5, 0)
-                -- 1. Camera mira no alvo
                 cam.CFrame = CFrame.new(cam.CFrame.Position, targetPos)
-                -- 2. Corpo do player olha para o alvo (horizontal)
-                myHRP.CFrame = CFrame.new(myHRP.Position,
-                    Vector3.new(targetPos.X, myHRP.Position.Y, targetPos.Z))
-                -- 3. Arma aponta para o alvo
-                for _, tool in ipairs(myChar:GetChildren()) do
-                    if tool:IsA("Tool") then
-                        local handle = tool:FindFirstChild("Handle")
-                        if handle then
-                            handle.CFrame = CFrame.new(handle.Position, targetPos)
-                        end
-                    end
-                end
+                -- ❌ NÃO manipula: corpo, arma ou HumanoidRootPart
             end
         end
     end
 end)
 
--- ══════════════════════════════════════════════════════════════════
+-- ════════════════════════════════════════════════════════════════
 -- ESP — extraído da versão funcional (CENTRAL.lua)
--- ══════════════════════════════════════════════════════════════════
+-- ════════════════════════════════════════════════════════════════
 
 -- Configurações de escala
 local DIST_PERTO = 10
@@ -1026,4 +1013,4 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
-print("[ShadowMenu] Loaded. INSERT = abrir/fechar")
+print("[ShadowMenu] Loaded. INSERT = abrir/fechar. Aimbot: APENAS CÂMERA (sem corpo)")
